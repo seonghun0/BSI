@@ -44,9 +44,9 @@ public interface SubwayService {
 	
 	List<HashMap<String, Object>> findAllSubwayNames();
 
-	List<TimeCustomersVO> findTimeCustomers(String snumber, String hour);
+	List<TimeCustomersVO> findTimeCustomers(String snumber, String hour, int i, int j);
 
-	List<TimeCustomersVO> findAvgByDate(String snumber);
+	List<TimeCustomersVO> findcount(String snumber, String hour);
 
 	List<MaxMinVO> findStationAndMaxMin(String station, String maxMin);
 

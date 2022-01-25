@@ -165,17 +165,17 @@ public class SubwayServiceImpl implements SubwayService{
 	}
 
 	@Override
-	public List<TimeCustomersVO> findTimeCustomers(String snumber, String hour) {
+	public List<TimeCustomersVO> findTimeCustomers(String snumber, String hour, int i, int j) {
 
-		List<TimeCustomersVO> vo = subwayMapper.selectTimeCustomers(snumber, hour);
+		List<TimeCustomersVO> vo = subwayMapper.selectTimeCustomers(snumber, hour, i, j);
 		
 		return vo;
 	}
 
 	@Override
-	public List<TimeCustomersVO> findAvgByDate(String snumber) {
+	public List<TimeCustomersVO> findcount(String snumber, String hour) {
 
-		List<TimeCustomersVO> vo = subwayMapper.selectAvgByDate(snumber);
+		List<TimeCustomersVO> vo = subwayMapper.selectcount(snumber, hour);
 		
 		return vo;
 	}

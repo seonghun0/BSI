@@ -127,19 +127,22 @@
 	</select>
 	
 	<select id="selectTimeCustomers" resultType="TimeCustomersVO">
-	select s.sname, c.date, hour, c.division, c.unumber
-	from customer c join subway s 
-	on s.snumber = c.snumber
-	where c.snumber =${ snumber }
-	and c.hour= '${ hour }'
+	select q1.*
+	from (select @rownum := @rownum+1 as rn, s.sname, c.date, hour, c.division, c.unumber,
+		(select avg(unumber) from customer where snumber = ${ snumber } and date = c.date and division = c.division) avgnumber
+		from subway s join customer c
+		on s.snumber = c.snumber, (select @rownum := 0) rn_tb 
+		where s.snumber = ${ snumber }
+		and c.hour= '${ hour }'
+		order by c.date) q1
+	where rn between ${ i } and  ${ j }
 	</select>
 	
-	<select id="selectAvgByDate" resultType="TimeCustomersVO">
-	select avg(unumber) as avgnumber
-	from customer
-	where snumber =${ snumber }
-	group by date, division
-	
+	<select id="selectcount" resultType="TimeCustomersVO">
+	select count(*) count
+	from subway s join customer c 
+	on s.snumber = c.snumber
+	where c.snumber = ${ snumber } and c.hour= '${ hour }'
 	</select>
 	<!-- 휘연님 작업 영역 끝 -->
 	

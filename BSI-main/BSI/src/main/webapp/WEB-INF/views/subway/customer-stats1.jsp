@@ -1,4 +1,4 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+ <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8" %>
 
 <!DOCTYPE html>
@@ -15,6 +15,18 @@
     <title>BSI</title>
 
    <jsp:include page="/WEB-INF/views/modules/css.jsp" />
+
+	<style type="text/css">
+		
+		.on{
+			display: block;
+			text-align: center;
+		}
+		.no{
+			border: 0;
+		}
+		
+	</style>
 
 </head>
 
@@ -37,16 +49,9 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    
-                    
-                    
-                    
-                    
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">역별 시간별 이용객수 </h1>
-                       
                     </div>
-
                     <!-- DataTales Example -->
                    <div class="row">
 			<div class="col-lg-3"></div>
@@ -61,13 +66,13 @@
 						<tr>
 							<th width="80px">역명 :</th>
 							<th >								
-								<select name="snumber" class="custom-select custom-select-sm form-control form-control-sm">
+								<select name="snumber" id="snumber" class="custom-select custom-select-sm form-control form-control-sm">
 									<c:forEach var="subwayName" items="${ subwayNames }">
 									<option value="${ subwayName.snumber }" ${ subwayName.snumber == selectedSnumber ? "selected" : "" }>${ subwayName.sname }</option>
 									</c:forEach>
 								</select>															
 							</th>
-							<th rowspan="2" width="100px"><button class="btn btn-primary btn-xl" input type="submit" value="조회">조회</button>
+							<th rowspan="2" width="100px"><button class="btn btn-primary btn-xl" id="search">조회</button>
 								
 							</th>
 						</tr>
@@ -75,18 +80,29 @@
 	                        <th>  시간 :</th>
                             <th width="120px">
                             
-                                <select name = "hour" class="custom-select custom-select-sm form-control form-control-sm">
-									<c:forEach begin="1" end="24" var='idx'>
-											<option value= '${ idx }시' ${ selectedHour == idx ? "selected" : "" }>${ idx }시</option>
-									</c:forEach>
+                                <select name = "hour" id="hour" class="custom-select custom-select-sm form-control form-control-sm">
+                                <c:forEach var="idx" begin="1" end="24">
+										<option value= "${ idx }시" ${ selectedHour == idx ? "selected" : "" }>${ idx }시</option>
+								</c:forEach>		
 								</select>								
 							</th>							
 						</tr>
+						<tr>
+	                        <th>  개수 :</th>
+                            <th width="120px">
+                                <select name = "cntPPage" class="custom-select custom-select-sm form-control form-control-sm">
+										<option value= "10" ${ selectedcntPPage == 10 ? "selected" : "" } >10개씩 보기</option>
+										<option value= "20" ${ selectedcntPPage == 20 ? "selected" : "" } >20개씩 보기</option>
+										<option value= "30" ${ selectedcntPPage == 30 ? "selected" : "" } >30개씩 보기</option>
+								</select>
+								<input type="hidden" name="page" value="1">								
+							</th>					
+						</tr>
 					</table>
-			</form>
-			</div>
-			<br><br>
-			</div>
+					</form>
+					</div>
+					<br><br>
+					</div>
 					</div>
 					</div>
 					<div class="row">
@@ -118,12 +134,32 @@
                                             <th>${ vo.hour }</th>
                                             <th>${ vo.division }</th>
                                             <th>${ vo.unumber }</th>
-                                            <th>${ avg[status.index].avgnumber }</th>
+                                            <th>${ vo.avgnumber }</th>
                                         </tr>
                                      </c:forEach>
                                     </tbody>
                                 </table>
                             </div>
+                            <c:if test="${ paging != null }">
+                            <div id="box" class="on">		
+								<c:if test="${paging.startPage != 1 }">
+									<a href="customer-stats1?page=${paging.startPage - 1 }&cntPPage=${paging.cntPerPage}" >&lt;</a>
+								</c:if>
+								<c:forEach begin="${paging.startPage }" end="${paging.endPage }" var="p">
+									<c:choose>
+										<c:when test="${p == paging.nowPage }">
+											<input type="button" value="${ p }" disabled="disabled" class="no" >
+										</c:when>
+										<c:when test="${p != paging.nowPage }">
+											<input type="button" data-i="${ p }" value="${ p }" name="next" class="no" >
+										</c:when>
+									</c:choose>
+								</c:forEach>
+								<c:if test="${paging.endPage != paging.lastPage}">
+									<a href="javascript:next()">&gt;</a>
+								</c:if>
+							</div>
+							</c:if>
                         </div>
                     </div>
 				</div>	
@@ -176,6 +212,29 @@
     <!-- Page level custom scripts -->
     <script src="/bsi/resources/js/demo/chart-area-demo.js"></script>
     <script src="/bsi/resources/js/demo/chart-pie-demo.js"></script>
+    
+    <script type="text/javascript">
+    var cntPPage = "${ paging.cntPerPage }";
+    var snumber = $("#snumber").val();
+    var hour = $('#hour').val();
+    var href = "customer-stats1?snumber=" + snumber +"&hour=" + hour + "&cntPPage="+cntPPage;
+    
+    function prev(){
+    	var prev = "${ paging.startPage - 1 }" 
+    	 location.href = href + "&page=" + prev;
+    }
+    
+    $("input[name='next']").click(function(){
+    	var p = $(this).attr('data-i');
+    	location.href= href + "&page=" + p;
+    })
+    
+    function next(){
+    	var next = "${ paging.endPage + 1 }"
+    	location.href= href + "&page=" + next;
+    }
+    
+    </script>
 
 </body>
 

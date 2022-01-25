@@ -16,6 +16,8 @@ public class TimeCustomersVO {
 	private String division;
 	private int unumber;
 	private int avgnumber;
+	private int count;
+	private int rn;
 
 	
 }

@@ -19,6 +19,7 @@ import com.team4.Service.CustomerService;
 import com.team4.Service.SubwayService;
 import com.team4.vo.MaxMinVO;
 import com.team4.vo.MembersVO;
+import com.team4.vo.PagingVO;
 import com.team4.vo.TimeCustomersVO;
 
 @Controller
@@ -163,35 +164,65 @@ public class SubwayController {
 	// 휘연님 작업 영역 시작
 	
 	@GetMapping(path = { "/customer-stats1" }) 
-	public String showCustomerStats1(Model model) {
+	public String showCustomerStats1(@RequestParam(required = false, name = "snumber" ) String snumber, @RequestParam(required = false, name = "hour") String hour, Model model, String page, String cntPPage) {
 		
 		List<HashMap<String, Object>> subwayNames = subwayService.findAllSubwayNames();
 		
-		//System.out.println(subwayNames.get(0));
-
+		System.out.println(snumber + " / " + hour);
+		if(page != null) {
+			int nowpage = Integer.parseInt(page);
+			int cntPerPage = Integer.parseInt(cntPPage);
+			List<TimeCustomersVO> count = subwayService.findcount(snumber, hour);
+			System.out.println(count);
+			int total = count.get(0).getCount();
+			
+			PagingVO pager = new PagingVO(total, nowpage, cntPerPage);
+			
+			System.out.println(nowpage + "/"+ cntPerPage+"/"+total);
+			System.out.println(pager);
+			// snumber와 hour를 이용해서 데이터베이스에서 데이터 조회
+			List<TimeCustomersVO> vo = subwayService.findTimeCustomers(snumber, hour, pager.getStart(), pager.getEnd());
+			System.out.println(vo);
+			
+			model.addAttribute("vo", vo);
+			model.addAttribute("paging", pager);
+			model.addAttribute("selectedHour", hour.substring(0, hour.indexOf("시")));  // 12시 -> 12
+		}
+ 		// 조회된 데이터 저장 ( jsp에서 읽을 수 있도록 )
 		model.addAttribute("subwayNames", subwayNames);
+		model.addAttribute("selectedSnumber", snumber);
 		
 		return "subway/customer-stats1";
 	}
 	
 	@PostMapping(path = { "/customer-stats1" }) 
-	public String showCustomerStats(String snumber, String hour, Model model) {
+	public String showCustomerStats(String snumber, String hour, Model model, String page, String cntPPage) {
 		
 		List<HashMap<String, Object>> subwayNames = subwayService.findAllSubwayNames();
 		
-		System.out.println(snumber + " / " + hour);
+//		System.out.println(snumber + " / " + hour);
 		
+		int nowpage = Integer.parseInt(page);
+		int cntPerPage = Integer.parseInt(cntPPage);
+		List<TimeCustomersVO> count = subwayService.findcount(snumber, hour);
+		System.out.println(count);
+		int total = count.get(0).getCount();
+		
+		PagingVO pager = new PagingVO(total, nowpage, cntPerPage);
+		
+		System.out.println(nowpage + "/"+ cntPerPage+"/"+total);
+		System.out.println(pager);
 		// snumber와 hour를 이용해서 데이터베이스에서 데이터 조회
-		List<TimeCustomersVO> vo = subwayService.findTimeCustomers(snumber, hour);
+		List<TimeCustomersVO> vo = subwayService.findTimeCustomers(snumber, hour, pager.getStart(), pager.getEnd());
 		System.out.println(vo);
-		List<TimeCustomersVO> avg = subwayService.findAvgByDate(snumber);
+		
 		
  		// 조회된 데이터 저장 ( jsp에서 읽을 수 있도록 )
 		model.addAttribute("subwayNames", subwayNames);
 		model.addAttribute("selectedSnumber", snumber);
 		model.addAttribute("selectedHour", hour.substring(0, hour.indexOf("시")));  // 12시 -> 12
 		model.addAttribute("vo", vo);
-		model.addAttribute("avg",avg);
+		model.addAttribute("paging", pager);
 		
 		return "subway/customer-stats1";
 	}

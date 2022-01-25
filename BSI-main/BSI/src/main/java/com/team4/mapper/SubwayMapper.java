@@ -53,9 +53,9 @@ public interface SubwayMapper {
 	
 	List<HashMap<String, Object>> selectAllSubwayNames();
 
-	List<TimeCustomersVO> selectTimeCustomers(@Param("snumber") String snumber,@Param("hour") String hour);
+	List<TimeCustomersVO> selectTimeCustomers(@Param("snumber") String snumber,@Param("hour") String hour,@Param("i") int i, @Param("j") int j);
 
-	List<TimeCustomersVO> selectAvgByDate(@Param("snumber") String snumber);
+	List<TimeCustomersVO> selectcount(@Param("snumber") String snumber, @Param("hour") String hour);
 	
 	// 휘연님 작업 영역 끝
 	List<MaxMinVO> selectStationAndMaxMin(@Param("station") String station, @Param("MaxMin") String MaxMin);
